@@ -2,20 +2,18 @@
 
 set -e
 
+OPTIONS_SPEC="git-ffwd [options] <branch1> <branch2...>
+
+forward-ports branches on top of current branch.
+you must have the new upstream branch already checked out.
+--
+s,squash  forward-port all commits as one squash commit
+a,all     forward-port all local branches
+"
+SUBDIRECTORY_OK=1
 . "$(git --exec-path)/git-sh-setup"
 set_reflog_action ffwd
 require_work_tree
-
-usage() {
-  echo "usage: $0 [options] <branchname1> [<branchname2>...]"
-  echo "forward-ports <branchname> on top of current branch."
-  echo "you must have the new upstream branch already checked out."
-  echo
-  echo "flags:"
-  echo "  -s,--squash  forward-port all commits as one squash commit"
-  echo "  -a,--all     forward-port all local branches"
-  exit 1
-}
 
 ffwd_branch() {
   branch=$1
@@ -41,25 +39,27 @@ squash=
 all=
 while test $# != 0; do
   case "$1" in
-    --help|-h)
-      usage
-      ;;
-    -s,--squash)
+    -s)
       squash=1
       echo "TODO: squashing not implemented"
       exit 1
       ;;
-    -a,--all)
+    -a)
       all=1
       echo "TODO: all not implemented"
       exit 1
       ;;
-    *)
+    --)
+      shift
       break
       ;;
   esac
   shift
 done
+
+if [ $# = 0 ]; then
+  usage
+fi
 
 while [ $# != 0 ]; do
   ffwd_branch $1
