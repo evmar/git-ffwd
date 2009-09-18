@@ -1,0 +1,69 @@
+#!/bin/bash
+
+set -e
+
+. git-sh-setup
+set_reflog_action ffwd
+require_work_tree
+
+usage() {
+  echo "usage: $0 [options] <branchname1> [<branchname2>...]"
+  echo "forward-ports <branchname> on top of current branch."
+  echo "you must have the new upstream branch already checked out."
+  echo
+  echo "flags:"
+  echo "  -s,--squash  forward-port all commits as one squash commit"
+  echo "  -a,--all     forward-port all local branches"
+  exit 1
+}
+
+ffwd_branch() {
+  branch=$1
+
+  echo "Processing $branch..."
+  # Get off the current branch, if any.
+  git checkout HEAD^{}
+
+  if [ "$squash" ]; then
+    echo "TODO: squashing not implemented"
+  else
+    for rev in $(git rev-list --reverse $branch ^HEAD); do
+      echo $rev
+      git cherry-pick $rev > /dev/null
+    done
+  fi
+
+  echo "Clobbering your old branch; use 'git reflog' to recover if something goes wrong!"
+  git update-ref $branch HEAD
+}
+
+squash=
+all=
+while test $# != 0; do
+  case "$1" in
+    --help|-h)
+      usage
+      ;;
+    -s,--squash)
+      squash=1
+      echo "TODO: squashing not implemented"
+      exit 1
+      ;;
+    -a,--all)
+      all=1
+      echo "TODO: all not implemented"
+      exit 1
+      ;;
+    *)
+      echo $1
+      break
+      ;;
+  esac
+  shift
+done
+
+while [ $# != 0 ]; do
+  echo $1
+  ffwd_branch $1
+  shift
+done
