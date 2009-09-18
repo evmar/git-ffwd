@@ -2,7 +2,7 @@
 
 set -e
 
-. git-sh-setup
+. "$(git --exec-path)/git-sh-setup"
 set_reflog_action ffwd
 require_work_tree
 
